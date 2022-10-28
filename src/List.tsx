@@ -5,6 +5,7 @@ import Person, { InputPerson } from './Person';
 
 const url = `${process.env.REACT_APP_BACKEND_URL}/users`;
 
+let sortAttrStr:string|null=null
 const List: React.FC = () => {
   const [persons, setPersons] = useState<Person[]>([]);
   const [form, setForm] = useState<{ edit: number | null; showForm: boolean }>({
@@ -63,6 +64,20 @@ const List: React.FC = () => {
       });
   }
 
+
+  function sort(attr:keyof Person){
+    return function sortAttr(){
+ 
+      persons.sort((a,b)=>(b[attr] >a[attr] ?1:-1))
+
+      if(sortAttrStr===attr){
+        persons.reverse()
+      }
+      sortAttrStr=attr;
+      setPersons([...persons])
+    }
+  }
+
   return (
     <>
       {form.showForm && (
@@ -71,12 +86,12 @@ const List: React.FC = () => {
       <table>
         <thead>
           <tr>
-            <th>first name</th>
-            <th>last name</th>
-            <th>birth date</th>
-            <th>street</th>
-            <th>city</th>
-            <th>zip code</th>
+            <th onClick={sort('firstName')}>first name</th>
+            <th onClick={sort('lastName')}>last name</th>
+            <th onClick={sort('birthdate')}>birth date</th>
+            <th onClick={sort('street')}>street</th>
+            <th onClick={sort('city')}>city</th>
+            <th onClick={sort('zipCode')}>zip code</th>
           </tr>
         </thead>
         <tbody>
