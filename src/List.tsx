@@ -3,26 +3,22 @@ import { testContext } from './state';
 import Form from './Form';
 import ListItem from './ListItem';
 import Person, { InputPerson } from './Person';
+import { DeletePersonAction, SavedUserAction, SortPersonsAction } from './store/actions';
+import { deletePerson, updatePerson } from './PersonApi';
 
-const url = `${process.env.REACT_APP_BACKEND_URL}/users`;
 
-let sortAttrStr:string|null=null
-let sortDirection=false
 const List: React.FC = () => {
-  let persons=useContext(testContext)
+  let {data,dispatch}=useContext(testContext)
 
-  debugger;
   const [form, setForm] = useState<{ edit: number | null; showForm: boolean }>({
     edit: null,
     showForm: false,
   });
 
   function handleDelete(id: number): void {
-    fetch(`${url}/${id}`, { method: 'DELETE' }).then((response) => {
-      /*setPersons((prevPersons) =>
-        prevPersons?.filter((person) => person.id !== id)
-      );*/
-    });
+    deletePerson(id)
+    dispatch(new DeletePersonAction(id))
+   
   }
 
   function handleEdit(id: number): void {
@@ -37,47 +33,17 @@ const List: React.FC = () => {
     setForm({ edit: null, showForm: true });
   }
 
-  function handleSave(person: InputPerson) {
-    const method = person.id ? 'PUT' : 'POST';
-    let saveUrl = person.id ? `${url}/${person.id}` : url;
-    fetch(saveUrl, {
-      method,
-      body: JSON.stringify(person),
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-       /* setPersons((prevPersons) => {
-          if (person.id) {
-            return prevPersons.map((prevPerson) => {
-              if (prevPerson.id === person.id) {
-                return person;
-              }
-              return prevPerson;
-            });
-          }
-          return [...prevPersons, data];
-        });
-        clearAndHideForm();*/
-      });
+  async function handleSave(person: InputPerson) {
+    const data=await updatePerson(person)
+    dispatch(new SavedUserAction(data,person.id))
+
+    clearAndHideForm()
   }
 
 
   function sort(attr:keyof Person){
     return function sortAttr(){
- 
-      persons.sort((a,b)=>(b[attr] >a[attr] ?1:-1))
-
-      if(sortAttrStr===attr){
-        sortDirection=!sortDirection
-      }
-
-      if(!sortDirection){
-        persons.reverse()
-      }
-      sortAttrStr=attr;
-      
-     /* setPersons([...persons])*/
+      dispatch(new SortPersonsAction(attr));
     }
   }
 
@@ -98,7 +64,7 @@ const List: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {persons?.map((person) => (
+          {data?.map((person) => (
             <ListItem
               key={person.id}
               person={person}
