@@ -1,6 +1,5 @@
-import { act } from 'react-dom/test-utils';
 import Person from '../Person';
-import { Actions } from './actions';
+import { Actions } from './person-actions';
 
 export interface State {
     persons: Array<Person>

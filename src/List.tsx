@@ -1,45 +1,35 @@
 import React, { useEffect, useState,useContext } from 'react';
-import { testContext } from './state';
+import { FormState, PersonsState } from './state';
 import Form from './Form';
 import ListItem from './ListItem';
 import Person, { InputPerson } from './Person';
-import { DeletePersonAction, SavedUserAction, SortPersonsAction } from './store/actions';
+import { DeletePersonAction, SavedUserAction, SortPersonsAction } from './store/person-actions';
 import { deletePerson, updatePerson } from './PersonApi';
+import { ClearFormAction, EditPersonAction, NewPersonAction } from './store/form-actions';
+import { FormControl } from './FormControl';
 
 
 const List: React.FC = () => {
-  let {data,dispatch}=useContext(testContext)
+  let {data,dispatch}=useContext(PersonsState)
 
-  const [form, setForm] = useState<{ edit: number | null; showForm: boolean }>({
-    edit: null,
-    showForm: false,
-  });
+
+  const form=useContext(FormState)
 
   function handleDelete(id: number): void {
     deletePerson(id)
     dispatch(new DeletePersonAction(id))
-   
+    form.dispatch(new ClearFormAction())
   }
 
   function handleEdit(id: number): void {
-    setForm({ edit: id, showForm: true });
+    form.dispatch(new EditPersonAction(id))
   }
 
-  function clearAndHideForm(): void {
-    setForm({ edit: null, showForm: false });
-  }
+
 
   function handleNew(): void {
-    setForm({ edit: null, showForm: true });
+    form.dispatch(new NewPersonAction())
   }
-
-  async function handleSave(person: InputPerson) {
-    const data=await updatePerson(person)
-    dispatch(new SavedUserAction(data,person.id))
-
-    clearAndHideForm()
-  }
-
 
   function sort(attr:keyof Person){
     return function sortAttr(){
@@ -49,9 +39,7 @@ const List: React.FC = () => {
 
   return (
     <>
-      {form.showForm && (
-        <Form id={form.edit} onSave={handleSave} onCancel={clearAndHideForm} />
-      )}
+      <FormControl></FormControl>
       <table>
         <thead>
           <tr>
@@ -64,7 +52,7 @@ const List: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {data?.map((person) => (
+          {data.persons.map((person) => (
             <ListItem
               key={person.id}
               person={person}

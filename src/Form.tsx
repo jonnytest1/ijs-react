@@ -1,5 +1,6 @@
-import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
 import { InputPerson } from './Person';
+import { PersonsState } from './state';
 
 const initialPerson: InputPerson = {
   firstName: '',
@@ -18,14 +19,18 @@ type Props = {
 
 const Form: React.FC<Props> = ({ id, onSave, onCancel }) => {
   const [person, setPerson] = useState<InputPerson>(initialPerson);
+  let persons=useContext(PersonsState)
 
-  useEffect(() => {
-    if (id) {
-      fetch(`${process.env.REACT_APP_BACKEND_URL}/users/${id}`)
-        .then((response) => response.json())
-        .then((data) => setPerson(data));
+ useEffect(()=>{
+  if (id) {
+    const foundPErson = persons.data.persons.find(p => p?.id === id);
+    if(foundPErson) {
+      setPerson(foundPErson)
     }
-  }, [id]);
+  }else{
+    setPerson(initialPerson)
+  }
+ },[id])
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     setPerson((prevPerson) => ({
