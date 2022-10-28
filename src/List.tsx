@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useContext } from 'react';
+import { testContext } from './state';
 import Form from './Form';
 import ListItem from './ListItem';
 import Person, { InputPerson } from './Person';
@@ -8,23 +9,19 @@ const url = `${process.env.REACT_APP_BACKEND_URL}/users`;
 let sortAttrStr:string|null=null
 let sortDirection=false
 const List: React.FC = () => {
-  const [persons, setPersons] = useState<Person[]>([]);
+  let persons=useContext(testContext)
+
+  debugger;
   const [form, setForm] = useState<{ edit: number | null; showForm: boolean }>({
     edit: null,
     showForm: false,
   });
 
-  useEffect(() => {
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => setPersons(data));
-  }, []);
-
   function handleDelete(id: number): void {
     fetch(`${url}/${id}`, { method: 'DELETE' }).then((response) => {
-      setPersons((prevPersons) =>
+      /*setPersons((prevPersons) =>
         prevPersons?.filter((person) => person.id !== id)
-      );
+      );*/
     });
   }
 
@@ -50,7 +47,7 @@ const List: React.FC = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        setPersons((prevPersons) => {
+       /* setPersons((prevPersons) => {
           if (person.id) {
             return prevPersons.map((prevPerson) => {
               if (prevPerson.id === person.id) {
@@ -61,7 +58,7 @@ const List: React.FC = () => {
           }
           return [...prevPersons, data];
         });
-        clearAndHideForm();
+        clearAndHideForm();*/
       });
   }
 
@@ -80,7 +77,7 @@ const List: React.FC = () => {
       }
       sortAttrStr=attr;
       
-      setPersons([...persons])
+     /* setPersons([...persons])*/
     }
   }
 
