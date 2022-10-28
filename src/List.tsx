@@ -6,6 +6,7 @@ import Person, { InputPerson } from './Person';
 const url = `${process.env.REACT_APP_BACKEND_URL}/users`;
 
 let sortAttrStr:string|null=null
+let sortDirection=false
 const List: React.FC = () => {
   const [persons, setPersons] = useState<Person[]>([]);
   const [form, setForm] = useState<{ edit: number | null; showForm: boolean }>({
@@ -71,9 +72,14 @@ const List: React.FC = () => {
       persons.sort((a,b)=>(b[attr] >a[attr] ?1:-1))
 
       if(sortAttrStr===attr){
+        sortDirection=!sortDirection
+      }
+
+      if(!sortDirection){
         persons.reverse()
       }
       sortAttrStr=attr;
+      
       setPersons([...persons])
     }
   }
